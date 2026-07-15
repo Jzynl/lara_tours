@@ -1,0 +1,11 @@
+{% extends "proposals/public/public_base.html" %}
+{% block title %}About — {{ company.name }}{% endblock %}
+{% block body %}
+<section class="sec wrap" style="max-width:760px">
+  <span class="pill">Our story</span>
+  <h1 class="page-title">About {{ company.name }}</h1>
+  <div class="lead">{{ company.about_us|linebreaks }}</div>
+  {% if not company.about_us %}<p class="muted">Add your story in Admin → Company profile → About us.</p>{% endif %}
+  <a class="bn o big" href="{% url 'book' %}" style="margin-top:20px">Plan your trip</a>
+</section>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "proposals/public/public_base.html" %}
+{% load proposal_extras %}
+{% block title %}Journal — {{ company.name }}{% endblock %}
+{% block body %}
+<section class="sec wrap">
+  <span class="pill">From the journal</span><h1 class="page-title">Stories &amp; travel tips</h1>
+  <div class="g3" style="margin-top:24px">
+    {% for post in posts %}
+    <a class="card post" href="{% url 'journal_post' post.slug %}">
+      <div class="img">{% if post.cover_image %}<img src="{{ post.cover_image|media_src }}" alt="{{ post.title }}">{% endif %}</div>
+      <div class="cb"><div class="cat">{{ post.category }}</div><h3>{{ post.title }}</h3>{% if post.excerpt %}<p>{{ post.excerpt }}</p>{% endif %}<div class="date">{{ post.published_at|date:"F j, Y" }}</div></div>
+    </a>
+    {% empty %}<p class="muted">No posts yet. Add them in Admin → Journal posts.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

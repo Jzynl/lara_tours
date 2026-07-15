@@ -1,0 +1,85 @@
+{% extends "proposals/base.html" %}
+{% block title %}Add photos · Lara Proposal Studio{% endblock %}
+{% block content %}
+<style>
+  .imgbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+  .imgbar .dest{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+  .imgbar select{border:0;font-size:14px;background:transparent;outline:none}
+  .hint{color:var(--mut);font-size:13px;margin:2px 0 18px}
+  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+  .pick{position:relative;border-radius:10px;overflow:hidden;cursor:pointer;border:1px solid var(--line);
+        background:#eee;aspect-ratio:4/3;transition:transform .08s ease}
+  .pick:hover{transform:translateY(-2px)}
+  .pick img{width:100%;height:100%;object-fit:cover;display:block}
+  .pick .who{position:absolute;left:0;right:0;bottom:0;background:rgba(20,18,12,.6);color:#f3ead4;
+             font-size:11px;padding:4px 8px}
+  .pick .badge{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+               font-weight:600;font-size:15px;color:#fff;background:rgba(47,74,30,.78)}
+  .pick.loading .badge{display:flex;background:rgba(20,18,12,.55)}
+  .pick.added .badge{display:flex}
+  .pick.err .badge{display:flex;background:rgba(160,50,40,.8)}
+  .pick.added{cursor:default}
+</style>
+
+<div class="page-head"><h1>Add photos</h1></div>
+
+<form class="imgbar" method="get">
+  <input type="search" name="q" value="{{ query }}" autofocus
+         placeholder="Search a place — Zanzibar beach, Bali temple, Dubai skyline…"
+         style="flex:1;min-width:220px;padding:9px 12px;border:1px solid var(--line);border-radius:8px">
+  <button type="submit" class="btn primary">Search</button>
+  <span class="dest">Add to:
+    <select id="dest">
+      <option value="">Library only</option>
+      {% for d in destinations %}<option value="{{ d.pk }}">{{ d.name }}</option>{% endfor %}
+    </select>
+  </span>
+</form>
+
+{% if results %}<p class="hint">Free, licensed photos. Pick a destination above, then click any photo to add it — no uploading.</p>{% endif %}
+{% if query and not results %}<p class="hint">No results (or the search service is busy). Try another place or wording.</p>{% endif %}
+{% if not query %}<p class="hint">Type a place above and press Search. Photos come from Openverse — free, openly-licensed, and safe to use in proposals.</p>{% endif %}
+
+<div class="gallery">
+  {% for r in results %}
+  <div class="pick" data-id="{{ r.id }}" data-full="{{ r.full }}" data-ph="{{ r.photographer }}"
+       data-phurl="{{ r.photographer_url }}" data-alt="{{ r.alt }}">
+    <img src="{{ r.thumb }}" alt="{{ r.alt }}" loading="lazy">
+    <div class="who">© {{ r.photographer }} · {{ r.source_label }}</div>
+    <div class="badge">+ Add</div>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+  const CSRF = "{{ csrf_token }}";
+  const IMPORT_URL = "{% url 'stock_import' %}";
+  const destSel = document.getElementById('dest');
+
+  document.querySelectorAll('.pick').forEach(tile => {
+    tile.addEventListener('click', async () => {
+      if (tile.classList.contains('added') || tile.classList.contains('loading')) return;
+      const badge = tile.querySelector('.badge');
+      tile.classList.add('loading'); badge.textContent = 'Adding…';
+      const body = new URLSearchParams({
+        source_id: tile.dataset.id, full_url: tile.dataset.full,
+        photographer: tile.dataset.ph, photographer_url: tile.dataset.phurl,
+        title: tile.dataset.alt, destination: destSel.value
+      });
+      try {
+        const res = await fetch(IMPORT_URL, {
+          method: 'POST',
+          headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/x-www-form-urlencoded' },
+          body
+        });
+        const data = await res.json();
+        tile.classList.remove('loading');
+        if (data.ok) { tile.classList.add('added'); badge.textContent = '✓ ' + (data.message || 'Added'); }
+        else { tile.classList.add('err'); badge.textContent = data.error || 'Failed'; }
+      } catch (e) {
+        tile.classList.remove('loading'); tile.classList.add('err'); badge.textContent = 'Failed';
+      }
+    });
+  });
+</script>
+{% endblock %}

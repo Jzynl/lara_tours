@@ -1,0 +1,14 @@
+{% extends "proposals/public/public_base.html" %}
+{% load proposal_extras %}
+{% block title %}{{ destination.name }} — {{ company.name }}{% endblock %}
+{% block body %}
+<section class="pd-hero" {% if photos %}style="background-image:linear-gradient(rgba(20,30,12,.2),rgba(20,30,12,.55)),url('{{ photos.0|media_src }}')"{% endif %}>
+  <div class="wrap"><div class="eyebrow">{{ destination.region }}{% if destination.country %} · {{ destination.country }}{% endif %}</div><h1>{{ destination.name }}</h1></div>
+</section>
+<section class="sec wrap">
+  <div class="pd-grid">
+    <div><p class="lead">{{ destination.description }}</p><a class="bn o big" href="{% url 'book' %}?destination={{ destination.pk }}" style="margin-top:14px">Request this trip</a></div>
+    <div>{% if photos %}<div class="slideshow" style="flex-direction:column">{% for img in photos %}{% if not forloop.first %}<img src="{{ img|media_src }}" alt="" style="width:100%">{% endif %}{% endfor %}</div>{% endif %}</div>
+  </div>
+</section>
+{% endblock %}

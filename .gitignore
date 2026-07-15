@@ -1,0 +1,42 @@
+# Django
+db.sqlite3
+db.sqlite3-journal
+*.log
+local_settings.py
+
+# Media & collected static files
+/media/
+/staticfiles/
+
+# Secrets
+.env
+.env.*
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.Python
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Helper scripts (the repair/fix scripts we made)
+repair.py
+fix_home.py
+fix_hero.py
+fix_css.py
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

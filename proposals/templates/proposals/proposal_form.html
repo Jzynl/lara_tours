@@ -1,0 +1,158 @@
+{% extends "proposals/base.html" %}
+{% load static %}
+{% block title %}{% if is_edit %}Edit itinerary{% else %}Create new itinerary{% endif %} · Lara Studio{% endblock %}
+{% block bodyclass %}build{% endblock %}
+{% block content %}
+<form method="post" id="itform" class="builder">
+{% csrf_token %}
+<input type="hidden" name="action" id="action" value="save">
+
+<div class="bld-head">
+  <div><h1>{% if is_edit %}Edit itinerary{% else %}Create new itinerary{% endif %}</h1>
+    <p class="muted">Fill in the details below to create a professional itinerary.</p></div>
+  <div class="bld-actions">
+    <button type="submit" class="btn" onclick="document.getElementById('action').value='save'">Save draft</button>
+    <button type="submit" class="btn" onclick="document.getElementById('action').value='preview'">Preview</button>
+    <button type="submit" class="btn primary" onclick="document.getElementById('action').value='generate'">Generate itinerary</button>
+  </div>
+</div>
+
+<!-- 1. CLIENT -->
+<section class="card2">
+  <h2><span class="num">1</span> Client information</h2>
+  <div class="grid3">
+    <label>Client name *<input name="client_name" required value="{{ proposal.client_name|default:'' }}" placeholder="Enter client name"></label>
+    <label>Travel consultant
+      <select name="agent"><option value="">Select consultant</option>
+        {% for a in agents %}<option value="{{ a.pk }}" {% if proposal.agent_id == a.pk %}selected{% endif %}>{{ a.name }}</option>{% endfor %}
+      </select></label>
+    <label>Reference number<input value="{{ proposal.ref_number|default:'Auto-generated on save' }}" disabled><span class="hint">Auto-generated</span></label>
+  </div>
+  <div class="grid3">
+    <label>Travel dates
+      <span class="dates"><input type="date" name="start_date" value="{{ proposal.start_date|date:'Y-m-d' }}"> → <input type="date" name="end_date" value="{{ proposal.end_date|date:'Y-m-d' }}"></span></label>
+    <label>Guests
+      <span class="two"><input type="number" min="0" name="num_adults" id="adults" value="{{ proposal.num_adults|default:2 }}" title="Adults"> <input type="number" min="0" name="num_children" id="children" value="{{ proposal.num_children|default:0 }}" title="Children"></span>
+      <span class="hint">Adults · Children</span></label>
+    <label>Nationality<input name="nationality" value="{{ proposal.client_nationality|default:'' }}" placeholder="Nationality"></label>
+  </div>
+  <label>Cover image <span class="hint" style="display:inline;font-weight:400">— optional; leave on Auto to use the first destination's photo</span>
+    <select name="cover_image">
+      <option value="">Auto — first destination's photo</option>
+      {% for img in media_images %}<option value="{{ img.pk }}" {% if proposal.cover_image_id == img.pk %}selected{% endif %}>{{ img.title|default:img }}</option>{% endfor %}
+    </select></label>
+</section>
+
+<!-- 2. TOUR -->
+<section class="card2">
+  <h2><span class="num">2</span> Tour information</h2>
+  <div class="grid3">
+    <label>Tour name *<input name="tour_name" required value="{{ proposal.title|default:'' }}" placeholder="Enter tour name"></label>
+    <label>Country<input name="country" value="{{ proposal.country|default:'' }}" placeholder="Country"></label>
+    <label>Tour style
+      <span class="radios">
+        <label class="rb"><input type="radio" name="tour_style" value="private" {% if proposal.tour_style != 'group' %}checked{% endif %}> Private</label>
+        <label class="rb"><input type="radio" name="tour_style" value="group" {% if proposal.tour_style == 'group' %}checked{% endif %}> Group</label>
+      </span></label>
+  </div>
+  <label>Meal plan
+    <span class="radios">
+      <label class="rb"><input type="radio" name="meal_plan" value="BB" {% if proposal.meal_plan == 'BB' %}checked{% endif %}> Bed & Breakfast (BB)</label>
+      <label class="rb"><input type="radio" name="meal_plan" value="HB" {% if proposal.meal_plan == 'HB' %}checked{% endif %}> Half Board (HB)</label>
+      <label class="rb"><input type="radio" name="meal_plan" value="FB" {% if proposal.meal_plan == 'FB' or not proposal.meal_plan %}checked{% endif %}> Full Board (FB)</label>
+      <label class="rb"><input type="radio" name="meal_plan" value="AI" {% if proposal.meal_plan == 'AI' %}checked{% endif %}> All Inclusive (AI)</label>
+    </span></label>
+</section>
+
+<!-- 3. INTRO -->
+<section class="card2">
+  <h2><span class="num">3</span> Itinerary introduction</h2>
+  <textarea name="intro" rows="4" placeholder="Write a short introduction about this itinerary…">{{ proposal.letter_override|default:'' }}</textarea>
+</section>
+
+<!-- 4. DAYS -->
+<section class="card2">
+  <div class="sec-head"><h2><span class="num">4</span> Day-by-day itinerary</h2><button type="button" class="btn small" onclick="addDay()">+ Add day</button></div>
+  <div id="days">
+    {% if days %}{% for d in days %}
+    <div class="dayrow">
+      <div class="dnum"><span></span></div>
+      <div class="dbody">
+        <div class="grid2">
+          <label>Destination
+            <select name="day_destination" class="destsel" onchange="fillBlurb(this)">
+              <option value="">Select destination</option>
+              {% for dd in destinations %}<option value="{{ dd.pk }}" {% if d.destination_id == dd.pk %}selected{% endif %}>{{ dd.name }}</option>{% endfor %}
+            </select></label>
+          <label>Accommodation (hotel name)<input name="day_hotel" value="{{ d.hotel_name|default:'' }}" placeholder="Enter hotel name"></label>
+        </div>
+        <label>Description
+          <textarea name="day_desc" rows="3" placeholder="Describe the day…">{{ d.narrative }}</textarea>
+          <a class="blurb-link" onclick="useBlurb(this)">↺ Use destination blurb</a></label>
+      </div>
+      <button type="button" class="del" onclick="delDay(this)" title="Remove day">✕</button>
+    </div>
+    {% endfor %}{% endif %}
+  </div>
+  <button type="button" class="btn addday" onclick="addDay()">+ Add day</button>
+</section>
+
+<!-- 5. INCLUSIONS -->
+<section class="card2">
+  <h2><span class="num">5</span> Inclusions <span class="muted" style="font-weight:400">(anything unticked is treated as excluded)</span></h2>
+  <div class="incl-grid">
+    {% for opt in inclusion_options %}
+    <label class="ck"><input type="checkbox" name="incl" value="{{ opt }}" {% if opt in checked_incl %}checked{% endif %}> {{ opt }}</label>
+    {% endfor %}
+    <label class="ck"><input type="checkbox" disabled checked> Other <input name="incl_other" placeholder="specify…" style="width:120px;margin-left:6px"></label>
+  </div>
+</section>
+
+<!-- 6. PRICE -->
+<section class="card2">
+  <h2><span class="num">6</span> Price / quote</h2>
+  <div class="grid4">
+    <label>Currency
+      <select name="currency" id="currency">{% for c in currencies %}<option value="{{ c }}" {% if proposal.currency == c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></label>
+    <label>Price per adult<input type="number" step="0.01" name="price_adult" id="padult" value="{{ price_adult }}" placeholder="0.00"></label>
+    <label>Price per child<input type="number" step="0.01" name="price_child" id="pchild" value="{{ price_child }}" placeholder="0.00"></label>
+    <div class="total-box"><div class="muted">Total price</div><div class="total" id="total">$0.00</div></div>
+  </div>
+  <label>Notes (optional)<textarea name="notes" rows="2" placeholder="Payment terms or special conditions…">{{ proposal.payment_terms|default:'' }}</textarea></label>
+</section>
+</form>
+
+<script>
+const BLURBS = {{ dest_blurbs|safe }};
+function renumber(){document.querySelectorAll('#days .dayrow').forEach((r,i)=>{r.querySelector('.dnum span').textContent=(i+1);});}
+function dayTemplate(){
+  const opts = `{% for dd in destinations %}<option value="{{ dd.pk }}">{{ dd.name }}</option>{% endfor %}`;
+  const div=document.createElement('div');div.className='dayrow';
+  div.innerHTML=`<div class="dnum"><span></span></div><div class="dbody">
+    <div class="grid2">
+      <label>Destination<select name="day_destination" class="destsel" onchange="fillBlurb(this)"><option value="">Select destination</option>${opts}</select></label>
+      <label>Accommodation (hotel name)<input name="day_hotel" placeholder="Enter hotel name"></label>
+    </div>
+    <label>Description<textarea name="day_desc" rows="3" placeholder="Describe the day…"></textarea>
+    <a class="blurb-link" onclick="useBlurb(this)">↺ Use destination blurb</a></label>
+    </div><button type="button" class="del" onclick="delDay(this)" title="Remove day">✕</button>`;
+  return div;
+}
+function addDay(){document.getElementById('days').appendChild(dayTemplate());renumber();}
+function delDay(b){b.closest('.dayrow').remove();renumber();}
+function fillBlurb(sel){ /* store choice; only fill on demand via link */ }
+function useBlurb(link){
+  const row=link.closest('.dayrow');const sel=row.querySelector('.destsel');const ta=row.querySelector('textarea');
+  const b=BLURBS[sel.value];if(b){ta.value=b;}else{alert('Pick a destination first.');}
+}
+function calcTotal(){
+  const sym=({USD:'$',EUR:'€',GBP:'£',TZS:'TSh ',KES:'KSh '})[document.getElementById('currency').value]||'$';
+  const a=parseFloat(document.getElementById('padult').value||0)*parseInt(document.getElementById('adults').value||0);
+  const c=parseFloat(document.getElementById('pchild').value||0)*parseInt(document.getElementById('children').value||0);
+  document.getElementById('total').textContent=sym+(a+c).toFixed(2);
+}
+['padult','pchild','adults','children','currency'].forEach(id=>document.getElementById(id).addEventListener('input',calcTotal));
+if(!document.querySelector('#days .dayrow')){addDay();}else{renumber();}
+calcTotal();
+</script>
+{% endblock %}

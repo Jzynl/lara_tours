@@ -1,0 +1,99 @@
+{% extends "proposals/public/public_base.html" %}
+{% load proposal_extras %}
+{% block title %}{{ package.title }} — {{ company.name }}{% endblock %}
+{% block wamsg %}Hello, I'd like a quote for the "{{ package.title }}".{% endblock %}
+{% block body %}
+<section class="pd-hero" {% if package.hero_image %}style="background-image:linear-gradient(rgba(20,30,12,.25),rgba(20,30,12,.55)),url('{{ package.hero_image|media_src }}')"{% endif %}>
+  <div class="wrap"><div class="eyebrow">{{ package.duration_label }}{% if package.region %} · {{ package.region }}{% endif %}</div><h1>{{ package.title }}</h1></div>
+</section>
+
+<section class="sec wrap">
+  <div class="badges">
+    {% if package.tour_class %}<span class="bdg g">{{ package.get_tour_class_display }}</span>{% endif %}
+    {% if package.is_private %}<span class="bdg g">Private tour</span>{% endif %}
+    {% if package.accommodation_type %}<span class="bdg">{{ package.accommodation_type }}</span>{% endif %}
+    {% if package.can_start_any_day %}<span class="bdg">Can start any day</span>{% endif %}
+    {% if package.can_customize %}<span class="bdg">Can be customised</span>{% endif %}
+    {% if package.age_suitability %}<span class="bdg">{{ package.age_suitability }}</span>{% endif %}
+  </div>
+
+  <div class="pd-grid" style="margin-top:18px">
+    <div>
+      <div class="tabs">
+        <span class="tab on" data-t="ov">Overview</span>
+        {% if days %}<span class="tab" data-t="dd">Day by Day</span>{% endif %}
+        {% if rates %}<span class="tab" data-t="rt">Rates</span>{% endif %}
+        {% if package.included_list or package.excluded_list %}<span class="tab" data-t="in">Inclusions</span>{% endif %}
+        {% if package.getting_there or package.start_point %}<span class="tab" data-t="gt">Getting There</span>{% endif %}
+      </div>
+
+      <div class="panel on" data-p="ov">
+        {% if package.body %}<div class="lead">{{ package.body|linebreaks }}</div>{% endif %}
+        {% if package.route_label %}<h3 class="fr pd-h">Route</h3><div class="route">{{ package.route_label }}</div>{% endif %}
+        {% if package.activities or package.transport %}<h3 class="fr pd-h">Activities &amp; transport</h3><p>{{ package.activities }}{% if package.transport %} · {{ package.transport }}{% endif %}</p>{% endif %}
+        {% if package.highlight_list %}<h3 class="fr pd-h">Highlights</h3><ul class="hl">{% for h in package.highlight_list %}<li>{{ h }}</li>{% endfor %}</ul>{% endif %}
+        {% if gallery %}<div class="slideshow">{% for img in gallery %}<img src="{{ img|media_src }}" alt="{{ package.title }}">{% endfor %}</div>{% endif %}
+      </div>
+
+      {% if days %}
+      <div class="panel" data-p="dd">
+        {% for d in days %}
+        <div class="pd-day"><div class="dh">{{ d.day_label }}{% if d.title %} · {{ d.title }}{% endif %}</div>
+          {% if d.description %}<div class="dtx">{{ d.description|linebreaks }}</div>{% endif %}
+          <div class="dm">{% if d.accommodation %}{{ d.accommodation }}{% if d.accommodation_note %} — {{ d.accommodation_note }}{% endif %} · {% endif %}{{ d.meals }}</div>
+        </div>
+        {% endfor %}
+        <h3 class="fr pd-h">Accommodation &amp; meals</h3>
+        <table class="rate-tbl"><tr><th>Day</th><th>Accommodation</th><th>Meals</th></tr>
+          {% for d in days %}<tr><td>{{ d.day_label|cut:"Day " }}</td><td>{{ d.accommodation|default:"—" }}{% if d.accommodation_note %}<br><span class="muted">{{ d.accommodation_note }}</span>{% endif %}</td><td>{{ d.meals|default:"—" }}</td></tr>{% endfor %}
+        </table>
+      </div>
+      {% endif %}
+
+      {% if rates %}
+      <div class="panel" data-p="rt">
+        <p class="muted">Per person, and varying by season — your agent confirms the exact price for your dates.</p>
+        <table class="rate-tbl"><tr><th>Duration</th><th>Single</th><th>Double (twin)</th><th>Family</th></tr>
+          {% for r in rates %}<tr><td>{{ r.duration_label }}</td><td>{% if r.price_single %}{{ r.price_single|money:package.currency_symbol }}{% else %}—{% endif %}</td><td>{% if r.price_double %}{{ r.price_double|money:package.currency_symbol }}{% else %}—{% endif %}</td><td>{% if r.price_family %}{{ r.price_family|money:package.currency_symbol }}{% else %}—{% endif %}</td></tr>{% endfor %}
+        </table>
+      </div>
+      {% endif %}
+
+      {% if package.included_list or package.excluded_list %}
+      <div class="panel" data-p="in">
+        <div class="inc2">
+          <div><h4 class="inch" style="color:#2f6b2a">Included</h4><ul class="inc y">{% for i in package.included_list %}<li>{{ i }}</li>{% endfor %}</ul></div>
+          <div><h4 class="inch" style="color:#c0472a">Excluded</h4><ul class="inc n">{% for i in package.excluded_list %}<li>{{ i }}</li>{% endfor %}</ul></div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if package.getting_there or package.start_point %}
+      <div class="panel" data-p="gt">
+        {% if package.start_point %}<p><b>Starts:</b> {{ package.start_point }}{% if package.end_point %} · <b>Ends:</b> {{ package.end_point }}{% endif %}</p>{% endif %}
+        {% if package.getting_there %}<div>{{ package.getting_there|linebreaks }}</div>{% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+    <aside>
+      <div class="pd-card">
+        {% if package.price_from %}<div class="from">{{ package.price_prefix }}</div><div class="amt">{{ package.price_from|money:package.currency_symbol }}</div><div class="muted" style="margin-bottom:14px">per person</div>{% elif package.pricing_mode == 'fixed' %}<div class="amt" style="font-size:22px">Price on request</div><div class="muted" style="margin-bottom:14px">Ask us for details</div>{% else %}<div class="amt" style="font-size:22px">Get a quote</div><div class="muted" style="margin-bottom:14px">Priced for your dates &amp; group</div>{% endif %}
+        <a class="bn o big" style="width:100%;text-align:center;box-sizing:border-box" href="{% url 'book' %}?package={{ package.slug }}">{% if package.pricing_mode == 'fixed' %}Book this experience{% else %}Get a quote{% endif %}</a>
+        {% if company.whatsapp_digits %}<a class="bn wa big" style="width:100%;text-align:center;box-sizing:border-box;margin-top:10px" target="_blank" rel="noopener" href="https://wa.me/{{ company.whatsapp_digits }}?text={% filter urlencode %}Hello, I'd like a quote for the "{{ package.title }}".{% endfilter %}">Continue on WhatsApp</a>{% endif %}
+        <p class="muted" style="font-size:12px;margin-top:12px">{% if package.pricing_mode == 'fixed' %}Fixed price — book directly.{% else %}Price varies by season — your agent confirms before payment.{% endif %}</p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<script>
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',function(){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+  this.classList.add('on');
+  var p=document.querySelector('.panel[data-p="'+this.dataset.t+'"]');
+  if(p)p.classList.add('on');
+}));
+</script>
+{% endblock %}

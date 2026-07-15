@@ -1,0 +1,22 @@
+{% extends "proposals/public/public_base.html" %}
+{% block title %}Reviews — {{ company.name }}{% endblock %}
+{% block body %}
+<section class="sec wrap">
+  <span class="pill">Loved by travellers</span><h1 class="page-title">Traveller reviews</h1>
+  <div class="g3" style="margin-top:24px">
+    {% for r in reviews %}
+    <div class="rev"><div class="stars">{{ r.stars }}</div><p>"{{ r.body }}"</p><div class="who">{{ r.author_name }}</div>{% if r.location %}<div class="loc">{{ r.location }}</div>{% endif %}{% if r.trip %}<div class="loc">{{ r.trip }}</div>{% endif %}</div>
+    {% empty %}<p class="muted">No reviews yet — be the first!</p>{% endfor %}
+  </div>
+</section>
+<section class="sec alt"><div class="wrap" style="max-width:680px">
+  <div class="head"><span class="pill">Share your trip</span><h2>Leave a review</h2></div>
+  <form class="bform" method="post">{% csrf_token %}
+    <div class="row2"><label>Your name *{{ form.author_name }}</label><label>Location{{ form.location }}</label></div>
+    <div class="row2"><label>Rating{{ form.rating }}</label><label>Which trip?{{ form.trip }}</label></div>
+    <label>Your review *{{ form.body }}</label>
+    <button type="submit" class="bn o big">Submit review</button>
+    <p class="muted" style="font-size:12.5px">Reviews appear once approved by our team.</p>
+  </form>
+</div></section>
+{% endblock %}

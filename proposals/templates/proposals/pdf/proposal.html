@@ -1,0 +1,283 @@
+{% load proposal_extras %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ proposal.title }} — {{ proposal.ref_number }}</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap');
+
+@page {
+  size: A4;
+  margin: 15mm 13mm 16mm 13mm;
+  @bottom-left { content: "Page " counter(page) "   ·   Ref. " string(footref); font-size: 7pt; color: #8a8472; }
+  @bottom-right { content: string(company); font-size: 7pt; color: #8a8472; }
+}
+@page cover { margin: 0; @bottom-left { content: none; } @bottom-right { content: none; } }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; color: #241f16; font-size: 10.5pt; line-height: 1.5; }
+.doc { --g: {{ company.primary_color|default:'#2f4a1e' }}; --or: {{ company.accent_color|default:'#dd7a1c' }}; --gold: #f4b042; --paper2: #f2ead6; --mut: #6f6a58; --line: #e2d8bf; }
+.serif { font-family: 'Fraunces', Georgia, 'Times New Roman', serif; }
+h1, h2, h3 { margin: 0; font-weight: 600; }
+.metastr { height: 0; overflow: hidden; }
+
+/* ---- cover & closing (full bleed) ---- */
+.cover, .closing { page: cover; position: relative; width: 210mm; height: 297mm; overflow: hidden; color: #fff; }
+.cover { background-color: var(--g); background-size: cover; background-position: center; }
+.cover .shade { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,.28), rgba(0,0,0,.05) 32%, rgba(0,0,0,.55)); }
+.cover .inner { position: absolute; inset: 0; padding: 17mm 16mm; display: flex; flex-direction: column; }
+.topbar { display: flex; justify-content: space-between; align-items: center; background: rgba(18,16,11,.5); border-radius: 3pt; padding: 2.4mm 3.4mm; font-size: 9pt; }
+.topbar .badge { background: #5d5b52; padding: 1mm 2.6mm; border-radius: 2pt; margin-right: 2.6mm; font-weight: 600; }
+.facts { display: flex; gap: 2.4mm; margin-top: 4mm; }
+.fb { flex: 1; background: rgba(15,14,10,.46); border-left: 1.4pt solid var(--gold); padding: 2mm 2.6mm; }
+.fb .l { font-size: 6.6pt; letter-spacing: .6pt; text-transform: uppercase; color: #e9dcc0; }
+.fb .v { font-size: 9pt; font-weight: 600; margin-top: .6mm; }
+.cover .headline { margin-top: auto; }
+.eyebrow { font-size: 9pt; letter-spacing: 2.4pt; text-transform: uppercase; color: #fbe6c4; }
+.cover .title { font-size: 40pt; font-weight: 700; line-height: .98; margin-top: 1mm; text-shadow: 0 2pt 12pt rgba(30,15,0,.4); }
+.letter { background: rgba(14,12,8,.52); border-radius: 4pt; padding: 5mm 5.5mm; margin-top: 6mm; max-width: 122mm; }
+.letter .greet { font-size: 13pt; font-weight: 600; margin-bottom: 2mm; }
+.letter p { font-size: 9.5pt; line-height: 1.55; color: #f0e7d4; margin: 0 0 2mm; }
+.agentrow { display: flex; align-items: center; gap: 3mm; margin-top: 3mm; }
+.agentrow .sig { height: 11mm; }
+.agentrow .nm { font-size: 9pt; }
+.brandstrip { text-align: center; padding: 4mm; }
+.brandstrip .lg { font-family: 'Fraunces', serif; font-size: 17pt; font-weight: 700; color: #9ecb6a; }
+.brandstrip .lg b { color: var(--or); }
+.brandstrip .tt { font-size: 8.5pt; letter-spacing: 2pt; color: #e6a05a; font-weight: 600; margin-left: 2mm; }
+.brandstrip .ue { font-size: 6.6pt; letter-spacing: 1.6pt; color: #caa86f; margin-top: 1mm; }
+
+/* ---- inner sheets ---- */
+.sheet { break-before: page; }
+.tab { display: inline-block; background: #4d4b44; color: #fff; font-size: 8pt; font-weight: 600; letter-spacing: .5pt; padding: 1.8mm 3.6mm; border-radius: 2pt; }
+.h-serif { font-family: 'Fraunces', Georgia, serif; }
+.muted { color: var(--mut); }
+.rule { border: 0; border-top: .4pt solid var(--line); margin: 4mm 0; }
+
+table.summary { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
+table.summary th { background: var(--paper2); text-align: left; padding: 2.4mm 3mm; font-weight: 600; }
+table.summary td { padding: 3mm; border-bottom: .4pt solid var(--line); vertical-align: top; }
+.dot { color: var(--or); font-weight: 700; }
+
+.dayhead { display: flex; justify-content: space-between; align-items: center; background: var(--paper2); border-bottom: .4pt solid var(--line); padding: 3mm 0; margin-bottom: 4mm; }
+.daychip { background: #4d4b44; color: #fff; padding: 1.4mm 3mm; border-radius: 2pt; font-weight: 600; font-size: 8.5pt; }
+.cols { display: flex; gap: 8mm; }
+.col { flex: 1; }
+.accbox { border-top: .4pt solid var(--line); border-bottom: .4pt solid var(--line); padding: 2.6mm 0; margin: 4mm 0; }
+.mealbox { background: var(--paper2); border: .4pt solid var(--line); border-radius: 3pt; padding: 3mm 3.4mm; margin-bottom: 4mm; }
+
+.tile { position: relative; width: 100%; margin-bottom: 3mm; border-radius: 3pt; overflow: hidden; }
+.tile img { display: block; width: 100%; height: 52mm; object-fit: cover; }
+.tile .cap { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(20,18,12,.72); color: #f3ead4; font-size: 7.5pt; padding: 1.4mm 2.4mm; }
+
+.dayblock { break-inside: avoid; border-top: .5pt solid var(--line); padding: 5mm 0; }
+.dayblock.first { border-top: 0; padding-top: 1mm; }
+.dstrip { display: flex; align-items: center; gap: 3mm; margin-bottom: 2.5mm; }
+.dstrip .dttl { font-size: 15pt; font-weight: 600; }
+.dstrip .dmeta { margin-left: auto; font-size: 8.5pt; color: var(--mut); }
+.dnar { font-size: 9.5pt; line-height: 1.6; margin-bottom: 2.5mm; }
+.dmeta2 { font-size: 9pt; color: #3a352a; display: flex; gap: 6mm; margin-bottom: 3mm; }
+.dmeta2 b { color: var(--mut); font-weight: 600; }
+.thumbs { display: flex; gap: 3mm; }
+.thumb { position: relative; flex: 1; border-radius: 3pt; overflow: hidden; }
+.thumb img { width: 100%; height: 34mm; object-fit: cover; display: block; }
+.thumb .cap { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(20,18,12,.7); color: #f3ead4; font-size: 7pt; padding: 1mm 2mm; }
+
+.pricebox { border: .5pt solid var(--line); border-radius: 3pt; overflow: hidden; margin-top: 3mm; }
+.prow { display: flex; justify-content: space-between; padding: 3mm 4mm; border-bottom: .4pt solid var(--line); font-size: 10pt; }
+.ptotal { background: var(--g); color: #fff; font-weight: 600; }
+.incexc { display: flex; gap: 4mm; margin-top: 5mm; }
+.ie { flex: 1; border: .5pt solid var(--line); border-radius: 3pt; padding: 3mm 3.4mm; }
+.ie h4 { font-size: 9.5pt; margin: 0 0 1.6mm; }
+.ie ul { margin: 0; padding-left: 4mm; font-size: 9pt; line-height: 1.5; }
+
+.contact { width: 100%; font-size: 10pt; }
+.contact td { padding: 2mm 0; border-bottom: .4pt solid var(--line); }
+.contact td.k { color: var(--mut); width: 32mm; }
+
+.closing .cinner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24mm; color: #f3ead4; }
+.closing .quote { font-size: 24pt; font-weight: 600; line-height: 1.3; max-width: 150mm; }
+.closing .by { font-size: 10pt; color: #cdbf9f; margin-top: 4mm; }
+.closing .credits { font-size: 7pt; color: #b6a87f; margin-top: 14mm; border-top: .4pt solid rgba(255,255,255,.16); padding-top: 4mm; max-width: 140mm; line-height: 1.6; }
+
+@media screen {
+  body { background: #e7e5de; }
+  .cover, .closing, .sheet { width: 210mm; min-height: 297mm; margin: 8mm auto; background-color: #fff; box-shadow: 0 2pt 14pt rgba(0,0,0,.18); }
+  .sheet { padding: 16mm 14mm; }
+  .cover { background-color: var(--g); }
+}
+@media print {
+  .pdf-toolbar { display: none !important; }
+  body { background: #fff !important; }
+  .cover, .closing, .sheet { box-shadow: none !important; margin: 0 !important; width: 100% !important; min-height: auto !important; }
+  .sheet, .closing { page-break-before: always; }
+  .cover { page-break-after: always; }
+}
+.pdf-toolbar { position: fixed; top: 14px; right: 16px; z-index: 1000; display: flex; gap: 8px; }
+.pdf-toolbar a, .pdf-toolbar button { font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 600; padding: 9px 17px; border-radius: 30px; border: 0; cursor: pointer; text-decoration: none; box-shadow: 0 2px 10px rgba(0,0,0,.15); }
+.pdf-toolbar .dl { background: linear-gradient(180deg, #f6a83a, #e8771c); color: #fff; }
+.pdf-toolbar .bk { background: #fff; color: #2f4d1e; border: 1px solid #d8e0cc; }
+</style>
+</head>
+<body>
+{% if is_preview %}
+<div class="pdf-toolbar">
+  <a class="bk" href="{% url 'proposal_list' %}">← Proposals</a>
+  <button class="bk" onclick="window.print()">🖨 Print</button>
+  <a class="dl" href="{% url 'proposal_pdf' proposal.pk %}">⭳ Download PDF</a>
+</div>
+{% endif %}
+<div class="doc">
+<div class="metastr" style="string-set: footref '{{ proposal.ref_number }} — {{ proposal.client_fullname }}', company '{{ company.name }}';"></div>
+
+{# ============================= 1 · COVER ============================= #}
+<section class="cover"{% if proposal.cover_image %} style="background-image: url('{{ proposal.cover_image|media_src:pdf_mode }}');"{% endif %}>
+  <div class="shade"></div>
+  <div class="inner">
+    <div class="topbar">
+      <span><span class="badge">Proposal</span>Ref. {{ proposal.ref_number }}</span>
+      <span style="font-weight:600">{{ proposal.client_fullname }}</span>
+    </div>
+    <div class="facts">
+      <div class="fb"><div class="l">Tour Length</div><div class="v">{{ proposal.tour_length_label }}</div></div>
+      <div class="fb"><div class="l">Travellers</div><div class="v">{{ proposal.travelers_label }}</div></div>
+      <div class="fb"><div class="l">Start</div><div class="v">{{ proposal.start_date|date:"M j, Y" }}</div></div>
+      <div class="fb"><div class="l">End</div><div class="v">{{ proposal.end_date|date:"M j, Y" }}</div></div>
+    </div>
+    <div class="headline">
+      {% if proposal.cover_eyebrow %}<div class="eyebrow">{{ proposal.cover_eyebrow }}</div>{% endif %}
+      <div class="title serif">{{ proposal.title }}</div>
+      <div class="letter">
+        <div class="greet serif">Dear {{ proposal.client_fullname }},</div>
+        {% for para in proposal.rendered_letter|paragraphs %}<p>{{ para }}</p>{% endfor %}
+        <div class="agentrow">
+          {% if proposal.agent.signature %}<img class="sig" src="{{ proposal.agent.signature|media_src:pdf_mode }}" alt="">{% endif %}
+          <div class="nm">
+            {% if proposal.agent %}<div style="font-weight:600">{{ proposal.agent.name }}</div>{% endif %}
+            <div style="color:#e6dcc6">{{ company.phone }} · {{ company.email }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="brandstrip">
+      <span class="tt" style="font-size:15pt; font-weight:700; letter-spacing:2pt;">{{ company.name|upper }}</span>
+      <div class="ue">{{ company.tagline|upper }}</div>
+    </div>
+  </div>
+</section>
+
+{# ============================= 2 · SUMMARY ============================= #}
+<section class="sheet">
+  <span class="tab">Summary</span>
+  <div style="display:flex; gap:6mm; align-items:center; margin-top:5mm;">
+    {% if proposal.cover_image %}<div style="width:34mm; height:26mm; border-radius:3pt; overflow:hidden; flex:none;"><img src="{{ proposal.cover_image|media_src:pdf_mode }}" style="width:100%;height:100%;object-fit:cover;"></div>{% endif %}
+    <h1 class="serif" style="font-size:24pt; line-height:1.05;">{{ proposal.title }}</h1>
+  </div>
+  <div style="display:flex; gap:14mm; margin:6mm 0; border-top:.4pt solid var(--line); border-bottom:.4pt solid var(--line); padding:3mm 0; font-size:9.5pt;">
+    <div><span class="muted" style="display:block; font-size:7pt; letter-spacing:.4pt;">START TOUR</span>{{ proposal.start_date|date:"l, F j, Y" }}</div>
+    <div><span class="muted" style="display:block; font-size:7pt; letter-spacing:.4pt;">END TOUR</span>{{ proposal.end_date|date:"l, F j, Y" }}</div>
+  </div>
+  <h2 class="serif" style="font-size:17pt; margin-bottom:2.5mm;">Day by Day</h2>
+  {% if proposal.start_destination %}<div class="muted" style="font-size:9pt; margin-bottom:2mm;">Start destination: <b style="color:#241f16">{{ proposal.start_destination.name }}</b></div>{% endif %}
+  <table class="summary">
+    <thead><tr><th style="width:18mm">Days</th><th>Main destination</th><th>Accommodation</th><th style="width:36mm">Meal plan</th></tr></thead>
+    <tbody>
+      {% for day in days %}
+      <tr>
+        <td><span class="dot">●</span> Day {{ day.day_number }}</td>
+        <td>{{ day.display_title }}</td>
+        <td>{% if day.hotel_display %}{{ day.hotel_display }}{% if day.room_config %}<br><span class="muted" style="font-size:8pt">{{ day.room_config }}</span>{% endif %}{% else %}<span class="muted">No accommodation</span>{% endif %}</td>
+        <td>{{ day.board_label }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if proposal.end_destination %}<div class="muted" style="font-size:9pt; margin-top:2.5mm;">End destination: <b style="color:#241f16">{{ proposal.end_destination.name }}</b></div>{% endif %}
+</section>
+
+{# ============================= 3 · DAY BY DAY (compact) ============================= #}
+<section class="sheet">
+  <span class="tab">Itinerary</span>
+  <h1 class="serif" style="font-size:22pt; margin:5mm 0 4mm;">Your journey, day by day</h1>
+  {% for day in days %}
+  <div class="dayblock{% if forloop.first %} first{% endif %}">
+    <div class="dstrip">
+      <span class="daychip">Day {{ day.day_number }}</span>
+      <span class="dttl serif">{{ day.display_title }}</span>
+      <span class="dmeta">{% if day.date %}{{ day.date|date:"D, M j" }}{% endif %}{% if day.destination %} · {{ day.destination.name }}{% endif %}</span>
+    </div>
+    {% if day.display_narrative %}<div class="dnar">{{ day.display_narrative|linebreaksbr }}</div>{% endif %}
+    <div class="dmeta2">
+      {% if day.hotel_display %}<span><b>Stay:</b> {{ day.hotel_display }}{% if day.room_config %} ({{ day.room_config }}){% endif %}</span>{% endif %}
+      <span><b>Meals:</b> {{ day.board_label }}</span>
+    </div>
+    {% with photos=day.photos %}{% if photos %}
+    <div class="thumbs">
+      {% for photo in photos %}<div class="thumb"><img src="{{ photo|media_src:pdf_mode }}" alt="">{% if day.destination %}<span class="cap">{{ day.destination.name }}</span>{% endif %}</div>{% endfor %}
+    </div>
+    {% endif %}{% endwith %}
+  </div>
+  {% endfor %}
+</section>
+
+
+{# ============================= PRICING ============================= #}
+<section class="sheet">
+  <span class="tab">Pricing</span>
+  <h1 class="serif" style="font-size:22pt; margin:5mm 0 4mm;">Our offer for {{ proposal.client_fullname }}</h1>
+  <div class="facts" style="display:flex; gap:3mm; margin-bottom:4mm;">
+    <div class="fb" style="background:var(--paper2); border-left-color:var(--or); color:#241f16;"><div class="l" style="color:var(--mut)">Tour Length</div><div class="v">{{ proposal.tour_length_label }}</div></div>
+    <div class="fb" style="background:var(--paper2); border-left-color:var(--or); color:#241f16;"><div class="l" style="color:var(--mut)">Travellers</div><div class="v">{{ proposal.travelers_label }}</div></div>
+  </div>
+  <div class="pricebox">
+    {% for item in pricing_items %}
+    <div class="prow"><span>{{ item.quantity }}× {{ item.label }}</span><span>{{ item.line_total|money:proposal.currency_symbol }}</span></div>
+    {% empty %}
+    <div class="prow"><span class="muted">No pricing items yet</span><span></span></div>
+    {% endfor %}
+    <div class="prow ptotal"><span>Total in {{ proposal.currency }}</span><span>{{ proposal.total|money:proposal.currency_symbol }}</span></div>
+  </div>
+  {% if proposal.payment_terms %}<div class="muted" style="font-size:9pt; margin-top:2.5mm;">{{ proposal.payment_terms }}</div>{% endif %}
+  <div class="incexc">
+    <div class="ie"><h4 style="color:var(--g)">Included</h4><ul>{% for line in proposal.included|lines %}<li>{{ line }}</li>{% endfor %}</ul></div>
+    <div class="ie"><h4 style="color:var(--or)">Excluded</h4><ul>{% for line in proposal.excluded|lines %}<li>{{ line }}</li>{% endfor %}</ul></div>
+  </div>
+</section>
+
+{# ============================= ABOUT US ============================= #}
+{% if company.about_us %}
+<section class="sheet">
+  <span class="tab">About Us</span>
+  <h1 class="serif" style="font-size:22pt; margin:5mm 0 4mm;">{{ company.name }}</h1>
+  {% for para in company.about_us|paragraphs %}<p style="font-size:10pt; line-height:1.7;">{{ para }}</p>{% endfor %}
+  <h2 class="serif" style="font-size:15pt; margin:6mm 0 2mm;">Contact us</h2>
+  <table class="contact">
+    {% if company.address %}<tr><td class="k">Address</td><td>{{ company.address }}</td></tr>{% endif %}
+    {% if company.country %}<tr><td class="k">Country</td><td>{{ company.country }}</td></tr>{% endif %}
+    {% if company.phone %}<tr><td class="k">Phone</td><td>{{ company.phone }}</td></tr>{% endif %}
+    {% if company.whatsapp %}<tr><td class="k">WhatsApp</td><td>{{ company.whatsapp }}</td></tr>{% endif %}
+    {% if company.email %}<tr><td class="k">Email</td><td>{{ company.email }}</td></tr>{% endif %}
+    {% if company.website %}<tr><td class="k">Website</td><td>{{ company.website }}</td></tr>{% endif %}
+  </table>
+</section>
+{% endif %}
+
+{# ============================= CLOSING ============================= #}
+<section class="closing" style="background:var(--g);">
+  <div class="cinner">
+    {% if company.closing_quote %}<div class="quote serif">“{{ company.closing_quote }}”</div>
+    {% if company.closing_quote_author %}<div class="by">— {{ company.closing_quote_author }}</div>{% endif %}{% endif %}
+    <div style="margin-top:14mm;">
+      <div style="font-size:13pt; letter-spacing:3pt; color:#e6a05a; font-weight:700; font-family:'Fraunces',serif;">{{ company.name|upper }}</div>
+      {% if company.tagline %}<div style="font-size:8.5pt; letter-spacing:2pt; color:#cdbf9f; margin-top:2mm;">{{ company.tagline|upper }}</div>{% endif %}
+    </div>
+    {% with creds=proposal.credit_images %}{% if creds %}
+    <div class="credits">Photography credits: {% for img in creds %}{{ img.credit_name }}{% if not forloop.last %}, {% endif %}{% endfor %}.</div>
+    {% endif %}{% endwith %}
+  </div>
+</section>
+
+</div>
+</body>
+</html>

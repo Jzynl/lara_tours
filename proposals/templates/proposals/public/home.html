@@ -1,0 +1,124 @@
+{% extends "proposals/public/public_base.html" %}
+{% load static proposal_extras %}
+{% block body %}
+<section class="hero-film" style="min-height:560px;background:linear-gradient(120deg,#e8771c 0%,#f6a83a 42%,#4a7a2c 100%)">
+  {% if hero_slides %}
+    <div class="hero-slides">
+      {% for s in hero_slides %}<div class="hslide{% if forloop.first %} on{% endif %}" style="background-image:url('{{ s.image.url }}')"></div>{% endfor %}
+    </div>
+  {% elif hero_img %}
+    <div class="hero-bg" style="background-image:url('{{ hero_img|media_src }}')"></div>
+  {% endif %}
+  <div class="hero-scrim"></div>
+  <div class="hero-content">
+    <div class="hero-words">
+      <span class="hw">Explore</span><span class="hdot"> · </span><span class="hw">Dream</span><span class="hdot"> · </span><span class="hw">Discover</span>
+    </div>
+    <div class="hero-sub-w">the world</div>
+    <div class="hero-cta">
+      <a class="bn o big" href="{% url 'book' %}">Plan your trip</a>
+      <a class="bn glass big" href="{% url 'packages' %}">Browse tours</a>
+    </div>
+  </div>
+  <div class="hero-fade"></div>
+</section>
+
+{% if packages %}
+<section class="sec wrap">
+  <div class="head"><span class="pill">Travel-ready</span><h2>Signature tours</h2></div>
+  <div class="g3">
+    {% for p in packages %}
+    <a class="card" href="{% url 'package_detail' p.slug %}">
+      <div class="img">{% if p.hero_image %}<img src="{{ p.hero_image|media_src }}" alt="{{ p.title }}">{% endif %}{% if p.tag %}<span class="tag">{{ p.tag }}</span>{% endif %}</div>
+      <div class="cb"><h3>{{ p.title }}</h3><div class="meta">{{ p.duration_label }}{% if p.region %} · {{ p.region }}{% endif %}</div><div class="price">{% if p.price_from %}{{ p.price_prefix }}<b>{{ p.price_from|money:p.currency_symbol }}</b> pp{% elif p.pricing_mode == "fixed" %}<b>Price on request</b>{% else %}<b>Get a quote</b>{% endif %}</div></div>
+    </a>
+    {% endfor %}
+  </div>
+  <div style="text-align:center;margin-top:24px"><a class="bn g" href="{% url 'packages' %}">See all tours</a></div>
+</section>
+{% endif %}
+
+{% if destinations %}
+<section class="sec alt">
+  <div class="wrap">
+    <div class="head"><span class="pill">Where to</span><h2>Explore destinations</h2></div>
+    <div class="scroller">
+      {% for d in destinations %}
+      <a class="card sc" href="{% url 'destination_detail' d.pk %}">
+        {% with imgs=d.ordered_images %}<div class="img">{% if imgs %}<img src="{{ imgs.0|media_src }}" alt="{{ d.name }}">{% endif %}<span class="nm">{{ d.name }}</span></div>{% endwith %}
+        <div class="cb"><span class="reg">{{ d.region }}</span></div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if posts %}
+<section class="sec wrap">
+  <div class="head"><span class="pill">From the journal</span><h2>Stories &amp; travel tips</h2></div>
+  <div class="g3">
+    {% for post in posts %}
+    <a class="card post" href="{% url 'journal_post' post.slug %}">
+      <div class="img">{% if post.cover_image %}<img src="{{ post.cover_image|media_src }}" alt="{{ post.title }}">{% endif %}</div>
+      <div class="cb"><div class="cat">{{ post.category }}</div><h3>{{ post.title }}</h3><div class="date">{{ post.published_at|date:"F j, Y" }}</div></div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if reviews %}
+<section class="sec alt">
+  <div class="wrap">
+    <div class="head"><span class="pill">Loved by travellers</span><h2>What our guests say</h2></div>
+    <div class="g3">
+      {% for r in reviews %}
+      <div class="rev"><div class="stars">{{ r.stars }}</div><p>"{{ r.body|truncatewords:34 }}"</p><div class="who">{{ r.author_name }}</div>{% if r.location %}<div class="loc">{{ r.location }}</div>{% endif %}</div>
+      {% endfor %}
+    </div>
+    <div style="text-align:center;margin-top:22px"><a class="bn g" href="{% url 'reviews' %}">Read all reviews · leave yours</a></div>
+  </div>
+</section>
+{% endif %}
+
+{% if faqs %}
+<section class="sec wrap">
+  <div class="head"><span class="pill">Good to know</span><h2>Frequently asked</h2></div>
+  <div class="faq">
+    {% for f in faqs %}<details><summary>{{ f.question }}</summary><div class="ans">{{ f.answer|linebreaks }}</div></details>{% endfor %}
+  </div>
+  <div style="text-align:center;margin-top:18px"><a class="bn g" href="{% url 'faq' %}">All questions</a></div>
+</section>
+{% endif %}
+
+<section class="news">
+  <h2 class="fr">Get trip inspiration</h2>
+  <p>Destination guides, deals and stories — a little wanderlust in your inbox.</p>
+  <form class="nf" method="post" action="{% url 'newsletter' %}">{% csrf_token %}
+    <input type="email" name="email" required placeholder="your@email.com">
+    <button type="submit" class="bn o">Subscribe</button>
+  </form>
+</section>
+<script>
+(function(){
+  var slides = document.querySelectorAll('.hero-slides .hslide');
+  if (slides.length > 1){
+    var i = 0;
+    setInterval(function(){
+      slides[i].classList.remove('on');
+      i = (i + 1) % slides.length;
+      slides[i].classList.add('on');
+    }, 6000);
+  }
+  var words = document.querySelectorAll('.hero-words .hw, .hero-words .hdot, .hero-sub-w');
+  if (words.length){
+    setInterval(function(){
+      words.forEach(function(w){ w.style.animation = 'none'; });
+      void document.body.offsetWidth;           // force reflow
+      words.forEach(function(w){ w.style.animation = ''; });
+    }, 9000);
+  }
+})();
+</script>
+{% endblock %}

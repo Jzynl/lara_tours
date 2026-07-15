@@ -1,0 +1,29 @@
+{% extends "proposals/public/public_base.html" %}
+{% load proposal_extras %}
+{% block title %}Your request {{ booking.ref }} — {{ company.name }}{% endblock %}
+{% block body %}
+<section class="sec wrap">
+  <div class="confirm-card">
+    <div class="check-big">✓</div>
+    <h1 class="fr" style="color:#2f4d1e">Thank you, {{ booking.full_name }}!</h1>
+    <p class="muted">Your request <b>{{ booking.ref }}</b> has been received. We'll be in touch shortly with your personalised itinerary.</p>
+    <div class="summary">
+      <div><span>Trip</span>{{ booking.trip_label }}</div>
+      <div><span>Travellers</span>{{ booking.travelers_label }}</div>
+      {% if booking.start_date %}<div><span>Dates</span>{{ booking.start_date }}{% if booking.end_date %} – {{ booking.end_date }}{% endif %}{% if booking.flexible_dates %} (flexible){% endif %}</div>{% endif %}
+      <div><span>Status</span><b>{{ booking.get_status_display }}</b></div>
+      {% if booking.quoted_total %}<div><span>Quote</span>{{ booking.quoted_total|money:booking.currency_symbol }}</div>{% endif %}
+    </div>
+    {% if booking.quoted_total and booking.is_open %}
+    <div class="pay-box">
+      <h3>To confirm your booking</h3>
+      <p>Pay your {{ company.deposit_percent }}% deposit of <b>{{ booking.deposit_amount|money:booking.currency_symbol }}</b>{% if company.lipa_namba %} to <b>{{ company.payment_provider }} {{ company.lipa_namba }}</b>{% endif %}.</p>
+      <p class="muted">{{ company.payment_instructions }}</p>
+      <p class="muted">Use reference <b>{{ booking.ref }}</b>.</p>
+    </div>
+    {% endif %}
+    {% if company.whatsapp_digits %}<a class="bn wa big" target="_blank" rel="noopener" style="margin-top:16px" href="https://wa.me/{{ company.whatsapp_digits }}?text={% filter urlencode %}Hi, about my request {{ booking.ref }}.{% endfilter %}">Message us on WhatsApp</a>{% endif %}
+    <p class="muted" style="font-size:12px;margin-top:14px">Bookmark this page to check your status anytime.</p>
+  </div>
+</section>
+{% endblock %}

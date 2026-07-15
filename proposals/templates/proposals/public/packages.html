@@ -1,0 +1,19 @@
+{% extends "proposals/public/public_base.html" %}
+{% load proposal_extras %}
+{% block title %}Tours — {{ company.name }}{% endblock %}
+{% block body %}
+<section class="sec wrap">
+  <span class="pill">Travel-ready</span>
+  <h1 class="page-title">Our tours</h1>
+  <p class="muted">Hand-crafted itineraries ready to book — or use them as a starting point for your own.</p>
+  <div class="g3" style="margin-top:26px">
+    {% for p in packages %}
+    <a class="card" href="{% url 'package_detail' p.slug %}">
+      <div class="img">{% if p.hero_image %}<img src="{{ p.hero_image|media_src }}" alt="{{ p.title }}">{% endif %}{% if p.tag %}<span class="tag">{{ p.tag }}</span>{% endif %}</div>
+      <div class="cb"><h3>{{ p.title }}</h3><div class="meta">{{ p.duration_label }}{% if p.region %} · {{ p.region }}{% endif %}</div>{% if p.summary %}<p>{{ p.summary }}</p>{% endif %}<div class="price">{% if p.price_from %}{{ p.price_prefix }}<b>{{ p.price_from|money:p.currency_symbol }}</b> pp{% elif p.pricing_mode == "fixed" %}<b>Price on request</b>{% else %}<b>Get a quote</b>{% endif %}</div></div>
+    </a>
+    {% empty %}<p class="muted">No tours published yet. Add them in Admin → Packages.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

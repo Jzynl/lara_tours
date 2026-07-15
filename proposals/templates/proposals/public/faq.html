@@ -1,0 +1,12 @@
+{% extends "proposals/public/public_base.html" %}
+{% block title %}FAQ — {{ company.name }}{% endblock %}
+{% block body %}
+<section class="sec wrap">
+  <span class="pill">Good to know</span><h1 class="page-title">Frequently asked questions</h1>
+  <div class="faq" style="margin-top:24px">
+    {% for f in faqs %}<details><summary>{{ f.question }}</summary><div class="ans">{{ f.answer|linebreaks }}</div></details>
+    {% empty %}<p class="muted">No FAQs yet. Add them in Admin → FAQs.</p>{% endfor %}
+  </div>
+  <div style="text-align:center;margin-top:24px"><a class="bn o big" href="{% url 'book' %}">Still have a question? Plan your trip</a></div>
+</section>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "proposals/public/public_base.html" %}
+{% block title %}Contact — {{ company.name }}{% endblock %}
+{% block body %}
+<section class="sec wrap" style="max-width:760px">
+  <span class="pill">Say hello</span>
+  <h1 class="page-title">Get in touch</h1>
+  <div class="contact-grid">
+    {% if company.phone %}<div><span>Phone</span>{{ company.phone }}</div>{% endif %}
+    {% if company.whatsapp %}<div><span>WhatsApp</span>{{ company.whatsapp }}</div>{% endif %}
+    {% if company.email %}<div><span>Email</span>{{ company.email }}</div>{% endif %}
+    {% if company.address %}<div><span>Address</span>{{ company.address }}{% if company.country %}, {{ company.country }}{% endif %}</div>{% endif %}
+    {% if company.website %}<div><span>Website</span>{{ company.website }}</div>{% endif %}
+  </div>
+  {% if company.whatsapp_digits %}<a class="bn wa big" target="_blank" rel="noopener" style="margin-top:20px" href="https://wa.me/{{ company.whatsapp_digits }}?text={% filter urlencode %}Hello, I'd like to plan a trip.{% endfilter %}">Chat on WhatsApp</a>{% endif %}
+  <a class="bn o big" href="{% url 'book' %}" style="margin-top:20px">Plan your trip</a>
+</section>
+{% endblock %}

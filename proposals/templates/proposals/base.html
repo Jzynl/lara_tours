@@ -1,0 +1,33 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Lara Proposal Studio{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body class="{% block bodyclass %}{% endblock %}">
+<header class="topnav">
+  <a class="brand" href="{% url 'proposal_list' %}">
+    <span class="lara">L<b>A</b>RA</span>
+    <span class="sub">Proposal Studio</span>
+  </a>
+  <nav>
+    <a href="{% url 'proposal_list' %}">Proposals</a>
+    <a href="/admin/proposals/booking/">Bookings</a>
+    <a href="{% url 'stock_search' %}">Add photos</a>
+    <a href="{% url 'proposal_new' %}">New proposal</a>
+    <a href="{% url 'home' %}">View site ↗</a>
+  </nav>
+</header>
+{% if messages %}
+<main style="margin-bottom:0"><div class="messages">
+  {% for message in messages %}<div class="msg {{ message.tags }}">{{ message }}</div>{% endfor %}
+</div></main>
+{% endif %}
+<main>{% block content %}{% endblock %}</main>
+<footer class="foot">{{ company.name }} · <b>{{ company.tagline }}</b></footer>
+</body>
+</html>

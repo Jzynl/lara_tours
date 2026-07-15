@@ -1,0 +1,47 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | Lara Proposal Studio{% endblock %}
+
+{% block branding %}
+<div id="site-name"><a href="{% url 'admin:index' %}">L<span style="color:#f6a83a">A</span>RA <span style="font-size:12px;letter-spacing:2px;color:#f6a83a;">PROPOSAL STUDIO</span></a></div>
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#2f4d1e; --secondary:#2f4d1e; --accent:#e8771c;
+  --link-fg:#4a7a2c; --link-hover-color:#c9620f; --link-selected-fg:#c9620f;
+  --button-bg:#e8771c; --button-hover-bg:#c9620f;
+  --default-button-bg:#e8771c; --default-button-hover-bg:#c9620f;
+  --header-color:#fff9ef; --header-branding-color:#fff9ef;
+  --header-bg:#2f4d1e; --breadcrumbs-bg:#3a5e26; --breadcrumbs-fg:#fff3dc;
+  --body-fg:#2a2218;
+}
+body, td, th, input { font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+#header{ background:linear-gradient(90deg,#213814,#2f4d1e); border-bottom:4px solid #e8771c; color:#fff9ef; }
+#site-name a{ font-family:'Fraunces',Georgia,serif; font-weight:700; color:#fff9ef !important; letter-spacing:1px; }
+#branding h1, #branding h1 a:link, #branding h1 a:visited{ color:#fff9ef; }
+div.breadcrumbs{ background:#3a5e26; color:#fff3dc; }
+div.breadcrumbs a{ color:#fde6cf; }
+a:link, a:visited{ color:#4a7a2c; }
+a:hover{ color:#c9620f; }
+.module h2, .module caption, .inline-group h2{
+  background:linear-gradient(90deg,#3a5e26,#2f4d1e); color:#fff9ef;
+  font-family:'Inter',sans-serif; letter-spacing:.3px; }
+.button, input[type=submit], input[type=button], .submit-row input, a.button{
+  background:#e8771c; color:#fff; border-radius:7px; }
+.button:hover, input[type=submit]:hover, .submit-row input:hover, a.button:hover{ background:#c9620f; }
+.button.default, input[type=submit].default, .submit-row input.default{
+  background:#2f4d1e; }
+.button.default:hover, input[type=submit].default:hover{ background:#213814; }
+.object-tools a:link, .object-tools a:visited{ background:#4a7a2c; }
+.object-tools a:hover{ background:#3a5e26; }
+.selected, .dashboard .module table tr:hover{ }
+#content h1, .dashboard h1, h1{ font-family:'Fraunces',Georgia,serif; color:#2f4d1e; }
+.submit-row{ background:#fbefd9; border-top:1px solid #ecd9b9; }
+fieldset.module{ border-radius:8px; }
+</style>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "proposals/public/public_base.html" %}
+{% load proposal_extras %}
+{% block title %}{{ post.title }} — {{ company.name }}{% endblock %}
+{% block meta %}{{ post.excerpt }}{% endblock %}
+{% block body %}
+<article class="sec wrap" style="max-width:760px">
+  <div class="cat" style="color:#c9620f;font-size:12px;letter-spacing:1px;text-transform:uppercase;font-weight:600">{{ post.category }}</div>
+  <h1 class="page-title" style="font-size:40px;margin:6px 0 8px">{{ post.title }}</h1>
+  <div class="muted" style="margin-bottom:18px">{{ post.published_at|date:"F j, Y" }}{% if post.author %} · {{ post.author }}{% endif %}</div>
+  {% if post.cover_image %}<img src="{{ post.cover_image|media_src }}" alt="{{ post.title }}" style="width:100%;border-radius:14px;margin-bottom:20px">{% endif %}
+  <div class="lead">{{ post.body|linebreaks }}</div>
+  <a class="bn o big" href="{% url 'book' %}" style="margin-top:22px">Plan a trip like this</a>
+</article>
+{% if more %}
+<section class="sec alt"><div class="wrap"><h2 class="fr" style="font-size:26px;margin-bottom:18px">More stories</h2><div class="g3">
+  {% for post in more %}<a class="card post" href="{% url 'journal_post' post.slug %}"><div class="img">{% if post.cover_image %}<img src="{{ post.cover_image|media_src }}" alt="">{% endif %}</div><div class="cb"><div class="cat">{{ post.category }}</div><h3>{{ post.title }}</h3></div></a>{% endfor %}
+</div></div></section>
+{% endif %}
+{% endblock %}

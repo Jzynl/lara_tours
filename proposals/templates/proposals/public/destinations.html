@@ -1,0 +1,19 @@
+{% extends "proposals/public/public_base.html" %}
+{% load proposal_extras %}
+{% block title %}Destinations — {{ company.name }}{% endblock %}
+{% block body %}
+<section class="sec wrap">
+  <span class="pill">Where to</span><h1 class="page-title">Our destinations</h1>
+  {% for region, items in groups.items %}
+  <h2 class="fr" style="color:#c9620f;font-size:24px;margin:30px 0 14px">{{ region }}</h2>
+  <div class="g3">
+    {% for d in items %}
+    <a class="card" href="{% url 'destination_detail' d.pk %}">
+      {% with imgs=d.ordered_images %}<div class="img">{% if imgs %}<img src="{{ imgs.0|media_src }}" alt="{{ d.name }}">{% endif %}<span class="nm">{{ d.name }}</span></div>{% endwith %}
+      <div class="cb"><p>{{ d.description|truncatewords:18 }}</p></div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</section>
+{% endblock %}
