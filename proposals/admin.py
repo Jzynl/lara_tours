@@ -124,6 +124,9 @@ class PricingItemInline(admin.TabularInline):
 @admin.register(models.Proposal)
 class ProposalAdmin(admin.ModelAdmin):
     """Proposals are created/edited in the Studio builder, not here."""
+    def changelist_view(self, request, extra_context=None):
+        return redirect("proposal_list")
+
     def add_view(self, request, form_url="", extra_context=None):
         return redirect("proposal_new")
 
