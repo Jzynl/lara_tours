@@ -114,24 +114,27 @@ def newsletter_subscribe(request):
 
 def book(request):
     initial = {}
+    package = None
     dest_id = request.GET.get("destination")
     if dest_id:
         initial["destination"] = dest_id
     pkg = request.GET.get("package")
     if pkg:
-        p = Package.objects.filter(slug=pkg).first()
-        if p:
-            initial["trip_title"] = p.title
-            if p.destination_id:
-                initial["destination"] = p.destination_id
+        package = Package.objects.filter(slug=pkg, is_active=True).first()
+        if package:
+            initial["trip_title"] = package.title
+            if package.destination_id:
+                initial["destination"] = package.destination_id
     if request.method == "POST":
         form = BookingForm(request.POST)
         if form.is_valid():
             booking = form.save()
             return redirect("booking_status", token=booking.token)
+        package = Package.objects.filter(slug=request.POST.get("package_slug", ""),
+                                         is_active=True).first()
     else:
         form = BookingForm(initial=initial)
-    return render(request, "proposals/public/book.html", {"form": form})
+    return render(request, "proposals/public/book.html", {"form": form, "package": package})
 
 
 def booking_status(request, token):
