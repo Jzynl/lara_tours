@@ -92,6 +92,27 @@
 </section>
 {% endif %}
 
+{% if company.charity_enabled %}
+<section class="charity">
+  <div class="wrap charity-in">
+    <div class="charity-txt">
+      <span class="pill">Giving back</span>
+      <h2 class="fr">{{ company.charity_title }}</h2>
+      <p>{{ company.charity_body|linebreaks }}</p>
+      <div class="charity-stats">
+        {% if company.charity_stat1 %}<div><span></span>{{ company.charity_stat1 }}</div>{% endif %}
+        {% if company.charity_stat2 %}<div><span></span>{{ company.charity_stat2 }}</div>{% endif %}
+        {% if company.charity_stat3 %}<div><span></span>{{ company.charity_stat3 }}</div>{% endif %}
+      </div>
+    </div>
+    <div class="charity-img">
+      {% if company.charity_image %}<img src="{{ company.charity_image|media_src }}" alt="{{ company.charity_title }}">
+      {% else %}<div class="charity-ph">Photo coming soon</div>{% endif %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
 <section class="news">
   <h2 class="fr">Get trip inspiration</h2>
   <p>Destination guides, deals and stories — a little wanderlust in your inbox.</p>

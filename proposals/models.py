@@ -25,6 +25,17 @@ class CompanyProfile(models.Model):
     logo = models.ImageField(upload_to="brand/", blank=True, null=True)
     hero_image = models.ImageField(upload_to="brand/", blank=True, null=True,
                                    help_text="Homepage banner. Landscape ~1920×1080. Leave blank to use a destination photo.")
+    charity_enabled = models.BooleanField(default=True, help_text="Show the 'Giving back' section on the homepage.")
+    charity_title = models.CharField(max_length=120, blank=True, default="Giving back to our community")
+    charity_body = models.TextField(blank=True, default=(
+        "Travel should leave a place better than it found it. A part of every journey with us goes "
+        "back into the communities we love — building classrooms, training young people with real "
+        "skills, and supporting vulnerable children and the environment across Tanzania."))
+    charity_image = models.ImageField(upload_to="brand/", blank=True, null=True,
+                                      help_text="Photo for the giving-back section. Landscape ~1200×800.")
+    charity_stat1 = models.CharField(max_length=60, blank=True, default="3 classrooms built")
+    charity_stat2 = models.CharField(max_length=60, blank=True, default="120+ children supported")
+    charity_stat3 = models.CharField(max_length=60, blank=True, default="Youth skills training")
 
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=40, blank=True)

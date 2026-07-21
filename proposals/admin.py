@@ -10,6 +10,9 @@ from . import models
 class CompanyProfileAdmin(admin.ModelAdmin):
     fieldsets = (
         ("Identity", {"fields": ("name", "tagline", "logo", "hero_image", "primary_color", "accent_color")}),
+        ("Giving back (homepage charity section)", {"fields": (
+            "charity_enabled", "charity_title", "charity_body", "charity_image",
+            ("charity_stat1", "charity_stat2", "charity_stat3"))}),
         ("Contact", {"fields": ("email", "phone", "whatsapp", "website", "address", "country")}),
         ("Social links", {"fields": ("facebook_url", "instagram_url", "tiktok_url",
                                      "youtube_url", "x_url"), "classes": ("collapse",)}),
@@ -124,9 +127,6 @@ class PricingItemInline(admin.TabularInline):
 @admin.register(models.Proposal)
 class ProposalAdmin(admin.ModelAdmin):
     """Proposals are created/edited in the Studio builder, not here."""
-    def changelist_view(self, request, extra_context=None):
-        return redirect("proposal_list")
-
     def add_view(self, request, form_url="", extra_context=None):
         return redirect("proposal_new")
 
